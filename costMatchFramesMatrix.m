@@ -1,6 +1,6 @@
-function cost = costMatrix(data0, data1, creation_cost, deletion_cost, dist_cutoff)
+function cost = costMatchFramesMatrix(data0, data1, creation_cost, deletion_cost, dist_cutoff)
 %
-%   cost = costMatrix(data0, data1, creation_cost, deletion_cost, dist_cutoff)
+%   cost = costMatchFramesMatrix(data0, data1, creation_cost, deletion_cost, dist_cutoff)
 %
 %   cost(i,j) is the cost associated with linking i time <--> j time+1
 %   data*      the TrackingTimeFrame data for 2 times to be matched.
@@ -9,31 +9,29 @@ function cost = costMatrix(data0, data1, creation_cost, deletion_cost, dist_cuto
 %   dist_cutoff a cutoff for distances cost(i,j) > dist_cutoff -> Inf
 %   dist_cutoff = Inf for no cutoff, = [] for automatic estimation
 %
- 
-o1 = data0.objects;
-o2 = data1.objects;
 
-n = length(o1);
-m = length(o2);
+n = length(data0.objects);
+m = length(data1.objects);
+cost = zeros(n+1,m+1);
 
-cost = ones(n+1,m+1);
-for i = 1:n
-   for j = 1:m
-      cost(i,j) = trackingDistance(o1(i), o2(j));
-   end
-end
+% distance cost
 
-% distance cutoff
 if nargin < 5 || isempty(dist_cutoff) 
+   % automatic detection
+   cost(1:n, 1:m) = distanceMatrix(data0, data1);
    dist_cutoff = estimateDistanceCutoff(cost(1:n, 1:m));
-end
-if dist_cutoff < 0
-   dist_cutoff = Inf;
+   cost(cost > dist_cutoff) = Inf;
+elseif dist_cutoff < 0
+   % no cut_off
+   cost(1:n, 1:m) = distanceMatrix(data0, data1);
+else
+   % given distance cutoff
+   cost(1:n, 1:m) = distanceMatrix(data0, data1, dist_cutoff);
 end
 
-cost(cost > dist_cutoff) = Inf;
 
 % object creation and deletion
+
 if nargin < 3 || isempty(creation_cost)
    creation_cost = estimateNonLinkingCost(cost(1:n, 1:m));
 end
@@ -47,6 +45,6 @@ end
 for j = 1:m
    cost(n+1,j) = creation_cost;
 end
-cost(n+1,m+1) = 0;
+cost(n+1,m+1) = Inf;
 
 end  

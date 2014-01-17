@@ -21,10 +21,8 @@ if ~isequal(size(match),size(cost)) && size(match,2) == 1
    % add creation cost;
    cc = cc + cost(nsize+1, 1) * (nsize - length(find(match>0)));
 
-else
-   
-    cc = sum(sum(cost(match > 0)));
-    
+else   
+    cc = sum(sum(cost(match > 0)));   
 end
 
 end

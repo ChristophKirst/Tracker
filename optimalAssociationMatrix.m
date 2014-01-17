@@ -1,6 +1,6 @@
 function result = optimalAssociationMatrix(cost, A)
 %
-% result = optimizeAssociationMatrix(A, cost)
+% result = optimalAssociationMatrix(A, cost)
 %
 % Optimizes the association matrix A given the cost matrix cost.
 % It is assumed that creation/deletion of objects are the last

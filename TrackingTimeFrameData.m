@@ -2,33 +2,35 @@ classdef TrackingTimeFrameData
    % class holding all objects to track in a certain time frame
    
    properties 
-      time = 0; % time
-      objects   % list of objects in frame
+      time = 0;      % time
+      objects        % list of objects in frame
+      filename = ''; % source file of data
    end
    
    properties (Dependent)
-      dim       % spatial dimensions
-      length    % total length of a single data entry
+      dim            % spatial dimensions
+      length         % total length of a single data entry
    end
    
    methods
-      function obj = TrackingTimeFrameData(objdata, dim, time)
+      function obj = TrackingTimeFrameData(objdata, dim, time, filename)
          if nargin > 0 
             obj = fromData(obj, objdata, dim);
-            if nargin == 3
+            if nargin > 2
               obj.time = time;
-            else
-              obj.time = 0;
+            end
+            if nargin > 3
+               obj.filename = filename;
             end
          end
       end 
 
       function obj = fromData(obj, objdata, dim)
          % stores data in array in the object
-         n = size(objdata,1);            
+         n = size(objdata,2);            
          o(n) = TrackingObjectData();
          for i=1:n
-            o(i) = TrackingObjectData(objdata(i,:), dim);
+            o(i) = TrackingObjectData(objdata(:,i), dim);
          end
          
          obj.objects = o;
@@ -36,12 +38,7 @@ classdef TrackingTimeFrameData
       
       function data = toData(obj)
          % converts data in array form
-         n = length(obj.objects);
-         
-         data = zeros(n, obj.length);
-         for i=1:n
-            data(i, :) = obj.objects(i).toData();
-         end
+         data = obj.objects.toData();
       end
             
       function d = get.dim(obj)
@@ -61,33 +58,37 @@ classdef TrackingTimeFrameData
          end
       end
       
+      function s = size(obj)
+         % converts intensities into vector
+         s = length(obj.objects);
+      end
+      
+      
       function coords = toCoordinates(obj)
-         % converts data in array form
-         n = length(obj.objects);   
-         coords = zeros(n, obj.dim);
-         for i=1:n
-            coords(i, :) = obj.objects(i).r;
-         end
+         % converts coordinates into array form
+         coords = [ obj.objects.r ];
       end
              
       function ints = toIntensities(obj)
-         % converts data in array form
-         n = length(obj.objects);   
-         ints = zeros(n, 1);
-         for i=1:n
-            ints(i) = obj.objects(i).intensity;
-         end
+         % converts intensities into vector
+         ints = [ obj.objects.intensity ];
       end
       
+      function ints = toInfos(obj)
+         % converts intensities into vector
+         ints = [ obj.objects.info ];
+      end  
+      
       function sizes = toSizes(obj)
-         % converts data in array form
-         n = length(obj.objects);   
-         sizes = zeros(n, 1);
-         for i=1:n
-            sizes(i) = obj.objects(i).size;
-         end
+         % converts sizes into vector
+         sizes = [ obj.objects.size ];
       end
 
+      function sizes = toIds(obj)
+         % converts sizes into vector
+         sizes = [ obj.objects.id ];
+      end
+      
       function obj = transformData(obj, R, T, C)
          for i=1:length(obj.objects)
             obj.objects(i) = obj.objects(i).transformData(R, T, C);

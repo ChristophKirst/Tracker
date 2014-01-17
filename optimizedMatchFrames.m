@@ -1,4 +1,4 @@
-function match = optimizedMatchFrames(data0, data1, creation_cost, deletion_cost, dist_cutoff)
+function [match, varargout] = optimizedMatchFrames(data0, data1, creation_cost, deletion_cost, dist_cutoff)
 %
 % match = optimizedMatchFrames(data0, data1)
 % 
@@ -25,7 +25,7 @@ end
 match = matchFrames(data0, data1, creation_cost, deletion_cost, dist_cutoff);
 
 % optimal coord transformation
-[X0, X1] = matchedCoordinates(data0, data1, match);
+[X0, X1] = match.toCoordinates(data0, data1);
 
 disp 'optimal transformation:'
 [R, T, C] = optimalTransformation(X0,X1)
@@ -33,6 +33,10 @@ disp 'optimal transformation:'
 data0t  = data0.transformData(R, T, C);
 
 % match transformed data
-match = matchFrames(data0t, data1);
+[match, cost] = matchFrames(data0t, data1);
+
+if nargout > 1
+   varargout{1} = cost;
+end
 
 end

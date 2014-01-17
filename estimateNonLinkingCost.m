@@ -15,7 +15,8 @@ else
 end
 
 dist = sort(dist);
-dist = max(dist(1,:));
+dist = dist(1,:);
+dist = max(dist(dist < Inf));
 
 fprintf('estimated non/linking cost: %g\n', dist);
 

@@ -16,6 +16,7 @@ end
 
 nn = min(5, size(dist,1));
 
+dist(dist == Inf) = 0;
 dist = sort(dist);
 dist = max(dist(nn,:));
 
