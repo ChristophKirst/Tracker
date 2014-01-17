@@ -1,5 +1,7 @@
 function cc = trackingCost(match, cost)
 %
+% cc = trackingCost(match, cost)
+%
 % compute cost for the match
 % match can be the permutation vector or association matrix
 %

@@ -22,7 +22,7 @@ a cost matrix formalism and then determining the trajectories
 code
 ____
    
-FilesFiles
+Files
 
    - costMatchFramesMatrix    - cost = costMatchFramesMatrix(data0, data1, creation_cost, deletion_cost, dist_cutoff)
    - distanceMatrix           - dist = distanceMatrix(data0, data1)
