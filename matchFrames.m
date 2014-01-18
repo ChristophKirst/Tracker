@@ -39,9 +39,10 @@ jLink = jLink(perm);
 %    printf(1, 'matchFrames: index off: iLink, jLink, range, perm\n');
 %    iLink, jLink, range, perm
 %end
-
-%fprintf(1, 'Of %d cells T0, %d matched, %d -> bndry, %d -> dummy. Matched %d out of %d cells T1\n',...
-%   osize, sum(jLink>0), sum(jLink==-1), sum(jLink==-2), length(find(A(1:osize,1:nsize))), nsize);
+%% unclear the best place to put generic print of what match did, perhaps include above also.
+% do you have a separate boundary match in your cost matrix at this point, It used to be -2??
+fprintf(1, '# Cells T0 %d, %d matched, %d unmatched, %d lost through bndry, #Cells T1 %d\n',...
+   osize, sum(jLink>0), sum(jLink==-1), sum(jLink==-2), nsize); %% length(find(A(1:osize,1:nsize))), nsize);
 
 match = TrackingMatchData(jLink, nsize);
 

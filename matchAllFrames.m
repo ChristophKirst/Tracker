@@ -6,7 +6,7 @@ function [match, varargout] = matchAllFrames(data, creation_cost, deletion_cost,
 % match such that i -> match(i) is the link if match(i)>0 
 % otherwise match(i) < 0 implies i -> nothing, 
 % indices not in match(i) are newly created objects
-%
+% 
 
 %% parameter
 if nargin < 2
@@ -52,7 +52,7 @@ end
 
 for t = 1:nframes-1
   
-   fprintf('matching timeframe: %d / %d\n', t, nframes-1);
+   fprintf('\nmatching timeframe: %d / %d\n', t, nframes-1);
    
    if isempty(optimize) || optimize <= 0
       [match(t), co] = matchFrames(data(t), data(t+1),  creation_cost, deletion_cost, dist_cutoff);

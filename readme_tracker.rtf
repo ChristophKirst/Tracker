@@ -1,0 +1,99 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf400
+\cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;\f2\fmodern\fcharset0 Courier-Bold;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;\red160\green32\blue240;}
+\margl1440\margr1440\vieww13200\viewh8560\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 Proposed README + questions for EmbryoTracker.  I have made some minor changes that I will ship back to you.\
+\
+Readme for EmbryoTracker Version Jan. 2014 by Christoph Kirst\
+\
+The main code is 
+\b runTracker.m
+\b0 . It reads all spread sheet data files from an input directory, tracks nuclei over time, and writes augmented spread sheet data files to an output directory. Each nuclei is assigned a 'Trajectory ID' that is consistent between times. The output files also record for each line (ie cell) the previous and next cell ID's that cell is mapped to.\
+	The code assumes that the data file names have the string (case insensitive) 'frame=number' that defines the time sequence, and a file extension of .cvs.  See 
+\b loadEmbryoDataFrame
+\b0  for the column types assumed for the input data.\
+\
+	The usual MATLAB help command will bring up instructions for all our functions.\
+\
+	For more control over various internal parameters see XXXXXXXX.m\
+\
+\
+\
+\
+%%%%%% issues to discuss or fix %%%%%%%\
+When I look at Test/Out/files\'85 I see  ALL OK PRINT warning when bad data record\
+[edsa:EmbryoTracker/Test/Out] siggia% ls\
+Timelapse_11152013_channel=0001_frame=0001_statistics.csv\
+Timelapse_11152013_channel=0001_frame=0002_statistics.csv\
+Timelapse_11152013_channel=0001_frame=0004_statistics.csv\
+\
+So frame 3 is lost. some warning when frame is declared bad when read\
+\
+In an individual file, I see lots of entries that are not matched, ie 60 are matched out of about 260 cells segmented, this is one embryo of several that you select by x-coordinate > 340. I see no data at length 1 in trajectory histogram, so everything got matched to another cell?? with no match to -1 ??\
+\
+For the rotated vs initial match costs and distances in the test output\
+	I see one very large matched distance and cost ~55 for one cell, should that cell get matched to dead is this indicate a bug, or is this intended\
+\
+%%%% now looking at the run for the full data set\
+You are using 'print' rather than verbose to define a print level for output, this is a bit dangerous since print() is also a matlab function, that the interpreter will override as your double parameter, but you can then never use the builtin in function, probably should be changed.\
+\
+the histogram of traj lengths is not so encouraging, there is a huge peak with maybe 90% of data for a length of 3, we need some statistics to find out why we are loosing so many cells. Suggest for each match pair you print to screen number of cells in , cells that are matched to something, number of trajectories created, number lost. I did something see my comments\
+\
+Using my version of code with modified stats, run.. and you will see that some of tracking problems due to poor segmentation.  On the file read, there should be a default which says that if the # cells in file N+1 is < 90% or some such number of file N then skip the frame and print warning.   Actually even 10% would catch all the problems in this data set.\
+runTracker('./Test/Data.all', 'test_run', 1, [])\
+\
+This brings up the question of how are you defining your times and timeframe numbers when you are skipping certain input files, and are you consistent with output data to screen??  Somehow when you are printing the matching stats of # cells in/out matched etc, you have to connect with the original file numbers, so user can see where segmentation failed.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+There is a bug in how you are passing arguments, if you use in runTracker\
+param.dist_cutoff = [];      % distance_cutoff above possible matches are ignored\
+param.creation_cost = 30;    % cost for not matching a point at time t+1 to an one at t (starts a new trajectory)\
+param.deletion_cost = 30;\
+You will see in the output that you are still computing the estimated linking cost, and I think using it. I corrected a few errors in argument order that you will see when looking at changes, but there is still something off.  \
+	I wanted to try running with imposed parameters to see if the fraction of cells matched would go up.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+
+\b trajectoryStatistics
+\b0 \
+	comment in the code about defn of dist values ie you are not adding the rotation and the dist is beginning to end with no division by ## of frames in the trajectory.\
+	print to screen the total number of trajectories, the number that end before last frame (ie lost or dead cells) the number created after initial time (thus potential births or tracking errors. Also for a low print level include a few numbers summarizing the histograms ie mean trajectory length, number of full length trajectories, this should be minimal output that anyone will want to see.\
+\
+
+\b plotMatchedTrajectories
+\b0 \
+	a concise way of getting colors with a legend to say what data goes with what color is for instance...\
+\pard\pardeftab720
+
+\f1\fs20 \cf0 nt = length(times);
+\fs24 \
+\pard\pardeftab720
+
+\fs20 \cf2 for\cf0  ii = 1:nt
+\fs24 \
+\pard\pardeftab720
+
+\fs20 \cf0     legendT\{ii\} = sprintf(\cf3 'T=%3.2f'\cf0 , times(ii));
+\fs24 \
+\pard\pardeftab720
+
+\fs20 \cf2 end
+\fs24 \cf0 \
+\pard\pardeftab720
+
+\fs20 \cf0 colors = jet(nt);
+\fs24 \
+\
+
+\f2\b loadEmbryoDataFrame
+\f1\b0 \
+	what is minimal assumption about column ID's are you just looking for \
+data_label = \{ 'Cell ID', 'X', 'Y', 'Z', 'Size', 'CH1-Avg'\}; and do not care about what comes before?? if so correct the DOC at beginning of file.\
+\
+
+\f2\b plotMatchedTrajectories
+\f1\b0 \
+	for the embryo data, the plots are 2D rather than 3D is that expected??}

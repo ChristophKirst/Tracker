@@ -19,9 +19,7 @@ persistent size_flag time_flag;
 data_label = { 'Cell ID', 'X', 'Y', 'Z', 'Size', 'CH1-Avg'};
 
 
-%% time   EDS mods
-% str = strsplit(fn, {'=', '_'});
-% time = str2double(str{length(str)-1}); 
+%% time 
 [idx1, idx2] = regexpi(fn, 'frame=[0-9]+' ); 
 time = str2double( fn(6+idx1:idx2) );
 
