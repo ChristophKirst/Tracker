@@ -24,7 +24,7 @@ for t = 1:nframes
          
    % get full data from source file
    fd = importdata(data(t).filename, ',', 1);
-   fd.textdata{1} = [fd.textdata{1} 'Trajectory ID, Previous ID, Next ID, '];
+   fd.textdata{1} = [fd.textdata{1} 'Trajectory ID, Prev. Cell ID, Next Cell ID, '];
 
 
    % create tracking data entries

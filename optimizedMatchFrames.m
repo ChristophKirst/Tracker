@@ -27,8 +27,10 @@ match = matchFrames(data0, data1, creation_cost, deletion_cost, dist_cutoff);
 % optimal coord transformation
 [X0, X1] = match.toCoordinates(data0, data1);
 
-disp 'optimal transformation:'
-[R, T, C] = optimalTransformation(X0,X1)
+% EDS if trivial to put a print level test here, do so, not of interest to
+% Kat etal. I added a ; since too much screen output otherwise.
+% disp 'optimal transformation: (R rotation, T translation, C scale)'
+[R, T, C] = optimalTransformation(X0,X1);
 
 data0t  = data0.transformData(R, T, C);
 

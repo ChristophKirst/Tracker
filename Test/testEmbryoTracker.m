@@ -56,7 +56,7 @@ for i = 1:size(X0,2)
    Xt(:,i) = (C * R * X0(:,i)) + T;
 end
 
-figure(1)
+figure(2)
 clf
 hold on
 h0 = scatter3(X0(1, :), X0(2, :), X0(3, :));
@@ -89,7 +89,7 @@ data1 = loadEmbryoDataFrame('./Test/Data/Timelapse_11152013_channel=0001_frame=0
 
 [match, cost] = matchFrames(data0, data1, [] ,[], []);
 
-figure(1)
+figure(3)
 clf
 subplot(1,2,1)
 plotMatchedTimeFrameData(data0, data1, match)
@@ -121,7 +121,7 @@ data1.objects = data1.objects(indx)
 
 %stats = matchedStatistics(data0, data1, match, cost);
 
-figure(1)
+figure(4)
 clf
 subplot(1,2,1)
 plotMatchedTimeFrameData(data0, data1, match)
@@ -146,7 +146,7 @@ for i = 1:n
 end
 
 
-figure(1)
+figure(5)
 clf
 hold on
 grid on
@@ -165,7 +165,7 @@ data0t  = data0.transformData(R, T, C);
 [matcht, costt] = matchFrames(data0t, data1);
 
 
-figure(1)
+figure(6)
 clf
 subplot(1,2,1)
 plotMatchedTimeFrameData(data0, data1, matcht)
@@ -180,7 +180,7 @@ stats = match.statistics(data0t, data1, cost);
 statst = matcht.statistics(data0t, data1, costt);
 
 
-figure(2)
+figure(7)
 clf
 subplot(2,2,1)
 hist(stats.dist.values);
@@ -202,11 +202,11 @@ title(sprintf('rotated match costs:\nn: %d mean: %g std: %g', length(statst.dist
 
 
 
-%% otimized Matching (= match, rotation, match)
+%% optimized Matching (= match, rotation, match)
 
 [match, cost] = optimizedMatchFrames(data0, data1);
 
-figure(1)
+figure(8)
 clf
 subplot(1,2,1)
 plotMatchedTimeFrameData(data0, data1, match)
@@ -236,7 +236,7 @@ end
 %% plot the result 
 
 for t =1:length(match)
-   figure(t)
+   figure
    clf
    subplot(1,2,1)
    plotMatchedTimeFrameData(data(t), data(t+1), match(t))
@@ -251,7 +251,7 @@ end
 
 traj = matchedTrajectories(match);
 
-figure(1)
+figure
 clf
 plotMatchedTrajectories(data, traj)
 
@@ -259,7 +259,7 @@ plotMatchedTrajectories(data, traj)
 
 stats = trajectoryStatistics(data, traj);
 
-figure(1)
+figure
 subplot(1,2,1)
 hist(stats.length.values)
 title(sprintf('trajectory time lengths:\nmean:%g std:%g', stats.length.mean, stats.length.std))
