@@ -67,11 +67,11 @@ end
 
 if print_match
    
-   fprintf('matchObjects: matched %d to %d objects, %d matching objects found', match.n0, match.n1, sum(match.match>0))
+   fprintf('matchObjects: trying to match %d to %d objects, %d matches made', match.n0, match.n1, sum(match.match>0))
    if ~isempty(optimize) && optimize > 0
-      fprintf(' using optimization\n');
+      fprintf(' using optimization\n\n');
    else
-      fprintf('\n');
+      fprintf('\n\n');
    end
       
 end
