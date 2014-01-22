@@ -1,5 +1,5 @@
-function dd = testFilter(dd)
-   dat = dd.toCoordinates();
+function frame = testFilter(frame)
+   dat = frame.r;
    indx = dat(2,:) > 340;
-   dd.objects = dd.objects(indx);
+   frame.objects = frame.objects(indx);
 end

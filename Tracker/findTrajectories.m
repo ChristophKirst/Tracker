@@ -1,28 +1,29 @@
-function [traj, varargout] = matchedTrajectories(matches, nfinal)
+function trajetories = findTrajectories(matches)
 %
-% [traj, times] = matchedTrajectories(matches, nfinal)
+% trajetories = findTrajectories(matches)
 %
-% identifies the trajectories as chains from the pairwise matches
-% matches is assumed to be a cell of match vectores or a vector of TrackingMatchData
-% returns a TrackingTrajectoryData class
+% description:
+%   identifies trajectories as chains from the pairwise matches
 %
+% input:
+%   matches      array of Match classes
+%
+% output:
+%   trajetories  array of Trajectory classes
+%
+% See also: Match, Trajectory
 
-if isvector(matches) && isequal(class(matches(1)), 'TrackingMatchData')
-   nfinal  = matches(end).n1;
-   matches = {matches.match};
-end
+% initialize
 
-nframes = length(matches) + 1;
-   
-if (nargin < 2 && isempty(nfinal))
-   nfinal = length(matches(end));
-end
-
-ncells = cellfun(@length, matches);
-ncells(end+1) = nfinal;
+frames = {matches.objects0 matches(end).objects1 };
+nframes = length(frames);
 
 
-% construct trajectories
+ncells = [matches.n0];
+ncells(end+1) = matches(end).n1;
+
+
+% find trajectories
 
 ntraj = ncells(1);
 active = 1:ntraj;
@@ -32,7 +33,7 @@ times = num2cell(ones(1,ntraj));
 for t = 1:nframes-1
    
    pre = cellfun(@(l) l(end), traj(active));
-   post = matches{t}(pre)';
+   post = matches(t).match(pre)';
   
    % trajectory ends
    active = active(post > 0);
@@ -50,11 +51,22 @@ for t = 1:nframes-1
    active = [active, ntraj+1:length(traj)]; %#ok<AGROW>   
    ntraj = length(traj);
 end
+ 
+
+% construc trajectories
+
+for n = ntraj:-1:1
    
-if nargout > 1
-   varargout{1} = times;
-else
-   traj = TrackingTrajectoryData(times, traj);
+   ti = times{n};
+   tr = traj{n};
+   
+   for p = length(ti):-1:1
+      objs(p) = frames{ti(p)}(tr(p));
+   end
+   
+   trajetories(n) = Trajectory(objs, ti, tr);
+
+   clear objs
 end
 
 

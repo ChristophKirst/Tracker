@@ -2,10 +2,27 @@ function result = optimalAssociationMatrix(cost, A)
 %
 % result = optimalAssociationMatrix(A, cost)
 %
-% Optimizes the association matrix A given the cost matrix cost.
-% It is assumed that creation/deletion of objects are the last
-% row and column in cost.
+% description:
+%    Optimizes the association matrix A given the cost matrix cost.
+%    It is assumed that creation/deletion of objects are the last
+%    row and column in cost.
 %
+% input:
+%    cost      cost matrix
+%    A         optional initial association matrix
+%
+% output:
+%    result    optimal association matrix given the cost matrix
+%
+% reference: 
+%    A shortest augmenting path algorithm for dense and sparse linear assignment problems
+%    Jonker, R, Volgenant, A, Computing 1987 
+%
+% todo: 
+%    use c version of the above reference
+%
+% See also: matchObjects 
+
 
 if nargin == 1 || isempty(A)
    A = initAssociationMatrix(cost);

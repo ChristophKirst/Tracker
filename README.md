@@ -1,57 +1,46 @@
 EmbryoTracker
 =============
 
-usage
-_____
+Version Jan 22 2014 
+by Christoph Kirst
+Rockefeller University
+ckirst@rockefeller.edu
 
-run the full tracking using
-   
-    runTracker(dirin, dirout)
+
+Usage
+-----
+
+The main code is runTracker.m. 
+
+It reads all spread sheet data files from an input directory, 
+tracks cells over time, and writes augmented spread sheet data files 
+to an output directory. Each cells is assigned a 'Trajectory ID' that 
+is consistent between times. The output files also record for each line 
+(ie cell) the previous and next cell ID's that cell is mapped to.
+
+The code assumes that the data file names have the string (case insensitive) 
+'frame=number' that defines the time sequence, and a file extension of .cvs.  
+See loadEmbryoDataFile.m for the column types assumed for the input data.
+
+The usual MATLAB help command will bring up instructions for all our functions.
+
+For more control over various internal parameters see setParameter.m
+
+
+Example
+-------
+
+   param = setParmeter();
+   runTracker(dirin, dirout, param)
+
+see the sections of /Test/testEmbryoTracker.m for more examples and tests.
   
-see runTracker.m for details and to set parameter
-see loadEmbryoDataFrame.m to set parameter for loading the data
 
 
-algorithm
-_________
+Algorithm
+---------
     
 traking is done by matching objects in subsequent frames using
-a cost matrix formalism and then determining the trajectories
-   
-  
-code
-____
-   
-Files
-
-   - costMatchFramesMatrix    - cost = costMatchFramesMatrix(data0, data1, creation_cost, deletion_cost, dist_cutoff)
-   - distanceMatrix           - dist = distanceMatrix(data0, data1)
-   - estimateDistanceCutoff   - dist = estimateDistanceCutoff(data0, data1)
-   - estimateNonLinkingCost   - dist = estimateNonLinkingCost(data0, data1)
-   - loadEmbryoData           - data = loadEmbryoData(dir)
-   - loadEmbryoDataFrame      - data = loadEmbryoDataFrame(fn)
-   - matchAllFrames           - [match, cost] = matchAllFrames(data, creation_cost, deletion_cost, dist_cutoff)
-   - matchedCoordinates       - [X0, X1] = matchedCoordinates(data0, data1, match)
-   - matchedPairs             - pairs = matchedPairs(match, k)
-   - matchedStatistics        - stat = matchedStatistics(data0, data1, cost, match)
-   - matchedTrajectories      - [traj, times] = matchedTrajectories(matches, nfinal)
-   - matchFrames              - match = matchFrames(data0, data1, creation_cost, deletion_cost, dist_cutoff)
-   - optimalAssociationMatrix - result = optimalAssociationMatrix(A, cost)
-   - optimalTransformation    - [R, T, C] = optimalTransformation(X, Y)
-   - optimizedMatchFrames     - match = optimizedMatchFrames(data0, data1)
-   - plotMatchedCostMatrix    - plotMatchedCostMatrix(cost, match)
-   - plotMatchedTimeFrameData - plot result of matching
-   - plotMatchedTrajectories  - plotMatchedTimeFrameData(data, traj)
-   - plotTimeFrameData        - plot data in a time frame
-   - runTracker               - runTracker(indir, outdir, print, filter)
-   - saveEmbryoData           - saveEmbryoData(dirname, data, traj)
-   - trackingCost             - compute cost for the match
-   - TrackingMatchData        - TrackingMatchData(match, k) class storing data from matching two frames
-   - TrackingObjectData       - TrackingObjectData(x, d, varargin) class storing info for the objects to be tracked
-   - TrackingTimeFrameData    - class holding all objects to track in a certain time frame
-   - TrackingTrajectoryData   - TrackingTrajectoryData(times, ids) class storing trajectories
-   - trajectoryStatistics     - stat = trajectoryStatistics(data, traj)
-   - writeCSV                 - success = writeCSV(filename, data, header)
-
+a cost matrix formalism and then determining the trajectories.
 
 

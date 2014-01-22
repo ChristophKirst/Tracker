@@ -6,26 +6,63 @@ function testEmbryoTracker()
 % test the Tracking 
 %
 
+path(path, './Classes')
+path(path, './Interface')
+path(path, './Tracker')
+
+
+%% Test classes 
+
+o1 = Object(1, 1, [0 1]', 100, [], [4 8 6]');
+o2 = Object(2, 1, [0 2]', 90, [], [1 5 6]');
+o3 = Object(3, 1, [0 3]', 10, [], [1 0 6]');
+
+o4 = Object(4, 2, [1 1]', 90, [], [1 5 6]'); 
+o5 = Object(5, 2, [1 3]', 10, [], [1 0 6]'); 
+
+
+o6 = Object(6, 3, [2 1]', 100, [], [1 5 6]'); 
+o7 = Object(7, 3, [2 2]', 90, [],  [1 0 6]'); 
+
+f1 = Frame('test image 1', [o1, o2, o3]);
+f2 = Frame('test image 2', [o4, o5]);
+f3 = Frame('test image 3', [o6, o7]);
+
+
+%% trajectories
+
+t1 = Trajectory([o1, o4, o6]);
+t2 = Trajectory([o3, o5]);
+t3 = Trajectory([o2, o7]);
+
+traj = [t1, t2, t3];
+
+[~, ~, objs] = traj.timeSlice(3);
+
+[objs.id]
+f3.id
+
+%% slicing
+
+[trajpos, tpos, objs, preobjs, postobjs] = traj.timeSlicePrePost(2)
+
+[preobjs.id]
+[objs.id]
+[postobjs.id]
+
 
 %% Test tracking
 
 
-data0 = TrackingTimeFrameData([1 0 10 1 1 0 1 2; 2 0 20 0 1 0 1 2; 3 0 0 0 1 0 1 2; 4 0 30 1 1 0 1 2]',3);
-data1 = TrackingTimeFrameData([1 1 20 0 1 0 1 2; 2 1 10 0 1 0 1 2; 3 1 30 0 1 0 1 2; 4 1 0 1 1 2 1 4]',3);
+data0 = f1;
+data1 = f2;
 
-
-[match, cost] = matchFrames(data0, data1, [] ,[], []);
-
-
-
-
-
-
+[match, cost] = matchObjects(data0, data1);
 
 figure(1)
 clf
 subplot(1,2,1)
-plotMatchedTimeFrameData(data0, data1, match)
+plotMatchedObjects(match)
 title('matches')
 subplot(1,2,2)
 plotMatchedCostMatrix(match, cost)
@@ -56,7 +93,7 @@ for i = 1:size(X0,2)
    Xt(:,i) = (C * R * X0(:,i)) + T;
 end
 
-figure(1)
+figure(2)
 clf
 hold on
 h0 = scatter3(X0(1, :), X0(2, :), X0(3, :));
@@ -83,16 +120,19 @@ hold off
 
 %% match embryo data - single step between two frames
 
-data0 = loadEmbryoDataFrame('./Test/Data/Timelapse_11152013_channel=0001_frame=0001_statistics.csv')
-data1 = loadEmbryoDataFrame('./Test/Data/Timelapse_11152013_channel=0001_frame=0002_statistics.csv')
+data0 = loadEmbryoDataFile('./Test/Data/Timelapse_11152013_channel=0001_frame=0001_statistics.csv')
+data1 = loadEmbryoDataFile('./Test/Data/Timelapse_11152013_channel=0001_frame=0002_statistics.csv')
 
 
-[match, cost] = matchFrames(data0, data1, [] ,[], []);
+[match, cost] = matchObjects(data0, data1);
 
-figure(1)
+
+%% plot result
+
+figure(2)
 clf
 subplot(1,2,1)
-plotMatchedTimeFrameData(data0, data1, match)
+plotMatchedObjects(match)
 title('matches')
 subplot(1,2,2)
 plotMatchedCostMatrix(match, cost)
@@ -103,28 +143,28 @@ title('cost matrix')
 
 %% extract data for single embryo for optimized tracking
 
-data0 = loadEmbryoDataFrame('./Test/Data/Timelapse_11152013_channel=0001_frame=0001_statistics.csv');
-data1 = loadEmbryoDataFrame('./Test/Data/Timelapse_11152013_channel=0001_frame=0002_statistics.csv');
+data0 = loadEmbryoDataFile('./Test/Data/Timelapse_11152013_channel=0001_frame=0001_statistics.csv');
+data1 = loadEmbryoDataFile('./Test/Data/Timelapse_11152013_channel=0001_frame=0002_statistics.csv');
 
-dat = data0.toCoordinates();
+dat = [data0.r];
 indx = dat(2,:) > 340;
 data0.objects = data0.objects(indx)
 
-dat = data1.toCoordinates();
+dat = [data1.r];
 indx = dat(2,:) > 340;
 data1.objects = data1.objects(indx)
 
 
 %% match single embryo
 
-[match, cost] = matchFrames(data0, data1);
+[match, cost] = matchObjects(data0, data1);
 
 %stats = matchedStatistics(data0, data1, match, cost);
 
-figure(1)
+figure(4)
 clf
 subplot(1,2,1)
-plotMatchedTimeFrameData(data0, data1, match)
+plotMatchedObjects(match)
 title('matches')
 subplot(1,2,2)
 plotMatchedCostMatrix(match, cost)
@@ -134,7 +174,7 @@ title('cost matrix')
 
 %% find optimal rotation
 
-[X0, X1] = match.toCoordinates(data0, data1);
+[X0, X1] = match.toCoordinates();
 
 disp 'optimal transformation:'
 [R, T, C] = optimalTransformation(X0,X1)
@@ -146,7 +186,7 @@ for i = 1:n
 end
 
 
-figure(1)
+figure(5)
 clf
 hold on
 grid on
@@ -160,27 +200,28 @@ hold off
 
 %% second match after rotation
 
-data0t  = data0.transformData(R, T, C);
+data0t = data0.copy; % deep copy
+data0t  = data0t.transformCoordinates(R, T, C);
 
-[matcht, costt] = matchFrames(data0t, data1);
+[matcht, costt] = matchObjects(data0t, data1);
+matcht.objects0 = data0.objects;
 
-
-figure(1)
+figure(6)
 clf
 subplot(1,2,1)
-plotMatchedTimeFrameData(data0, data1, matcht)
+plotMatchedObjects(matcht)
 title('matches')
 subplot(1,2,2)
-plotMatchedCostMatrix(matcht, cost)
+plotMatchedCostMatrix(matcht, costt)
 title('cost matrix')
 
 %% compare results
 
-stats = match.statistics(data0t, data1, cost);
-statst = matcht.statistics(data0t, data1, costt);
+stats = match.statistics(cost);
+statst = matcht.statistics(costt);
 
 
-figure(2)
+figure(7)
 clf
 subplot(2,2,1)
 hist(stats.dist.values);
@@ -204,12 +245,16 @@ title(sprintf('rotated match costs:\nn: %d mean: %g std: %g', length(statst.dist
 
 %% otimized Matching (= match, rotation, match)
 
-[match, cost] = optimizedMatchFrames(data0, data1);
 
-figure(1)
+param.optimize = true;
+param.print.optimization = true;
+
+[match, cost] = matchObjects(data0, data1, param);
+
+figure(8)
 clf
 subplot(1,2,1)
-plotMatchedTimeFrameData(data0, data1, match)
+plotMatchedObjects(match)
 title('matches')
 subplot(1,2,2)
 plotMatchedCostMatrix(match, cost)
@@ -220,46 +265,56 @@ title('cost matrix')
 
 %% track full list of time frames of single embryo
 
-data = loadEmbryoData('./Test/Data');
+param.load.min = 2;       % at least one object in frame
+param.load.change = 0.2;  % at most 20% change in number of objects
 
-for t = 1:length(data)
+param.print.load = true;
+param.print.match.objects = true;
+param.print.match.optimization = false;
+
+param.optimize = true;
+
+
+frames = loadEmbryoData('./Test/Data', param);
+
+for t = 1:length(frames)
    
-   dat = data(t).toCoordinates();
+   dat = frames(t).r;
    indx = dat(2,:) > 340;
-   data(t).objects = data(t).objects(indx);
-
+   frames(t).objects = frames(t).objects(indx);
+   
 end
 
-[match, cost] = matchAllFrames(data, [] , [], [], 1);
+[matches, costs] = matchFrames(frames, param);
 
 
 %% plot the result 
 
-for t =1:length(match)
-   figure(t)
+for t =1:length(matches)
+   figure
    clf
    subplot(1,2,1)
-   plotMatchedTimeFrameData(data(t), data(t+1), match(t))
+   plotMatchedObjects(matches(t))
    title('matches')
    subplot(1,2,2)
-   plotMatchedCostMatrix(match(t), cost{t})
+   plotMatchedCostMatrix(matches(t), costs{t})
    title('cost matrix')
 end
 
 
 %% determine trajectories
 
-traj = matchedTrajectories(match);
+trajs = findTrajectories(matches);
 
-figure(1)
+figure
 clf
-plotMatchedTrajectories(data, traj)
+plotMatchedTrajectories(frames, trajs)
 
 %% some statistics
 
-stats = trajectoryStatistics(data, traj);
+stats = statisticsTrajectory(trajs);
 
-figure(1)
+figure
 subplot(1,2,1)
 hist(stats.length.values)
 title(sprintf('trajectory time lengths:\nmean:%g std:%g', stats.length.mean, stats.length.std))
@@ -273,21 +328,34 @@ xlabel('distance')
 
 %% saving data
 
-saveEmbryoData('./Test/Out', data, traj)
+saveEmbryoData('./Test/Out', frames, trajs)
 
 
 
 %% run full Tracker 
 
+runTracker('./Test/Data', './Test/Out')
 
-runTracker('./Test/Data', './Test/Out', 1)
 
-
-%% run full Tacker with a filter 
+%% run full Tacker with standard parameter and a filter 
 
 path(path, './Test')
 
-runTracker('./Test/Data', './Test/Out', 1, @testFilter)
+param = setParameter();
+
+param.filter =  @testFilter;
+
+runTracker('./Test/Data', './Test/Out', param)
+
+
+%% run full Tacker with test parameter 
+path(path, './Test')
+
+param = setParameterTest();
+
+param.filter = @testFilter;
+
+[frames, matches, trajs] = runTracker('./Test/Data.all', './Test/Out', param);
 
 
 

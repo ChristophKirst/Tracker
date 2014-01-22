@@ -1,97 +1,115 @@
-function runTracker(indir, outdir, print, filter)
+function [frames, matches, trajs] = runTracker(indir, outdir, param)
 %
-% runTracker(indir, outdir, print, filter)
+% [frames, matches, trajs] = runTracker(indir, outdir, param)
 %
-% loads data in directory indir,
-% runs tracking algrothim on all subsequent time frame pairs, 
-% writes analysis data to directory outdir
-% print is level of verbosity for diagnostics
-% filter is a function pointer to filter each TrackingTimeFrameData object
-% according to some user defined criteria.
+% description:
+%    main routine to run the tracking by
+%    - loading data in directory indir,
+%    - running the tracking algrothim on all subsequent time frames, 
+%    - writing analysis data to directory outdir
 %
-
-%% parameter
-param.optimize = true;       % optimize match using an optimal rotation
-param.dist_cutoff = [];      % distance_cutoff above possible matches are ignored
-param.creation_cost = [];    % cost for not matching a point at time t+1 to an one at t (starts a new trajectory)
-param.deletion_cost = [];    % cost for not matching a point at time t to a point at t+1 (ends a trajectory)
-param.min_time = [];         % start matching after this time
-param.max_time = [];         % stop matching above this time
-param.max_steps = [];        % maximal number of steps matching steps (e.g. use for testing)
+% input:
+%    indir    directory of files to load object data from
+%    outdir   directory of files to save data to
+%    param    parameter structure containing parameter used by the various functions
+%             see beginning of code for optional parameters and behavior with reduced
+%             number of arguments
+%             .save                save the result to folder outdir (1)
+%             .min_time            start matching from this time onward ([])
+%             .max_time            last possible time in trajectory of matched cells ([])
+%             .max_frames          maximal number of frames to match for testing ([])
+%
+%
+%             .figure.match        generate figures for the matching results (0)
+%             .figure.trajectories generate figure for the trajectories
+%             .figure.stats        generate figuer for the statistics of the trajectories
+%
+% output:
+%    frames   array of Frame classes representing the movie
+%    matches  array of Match classes containting the sequential matching information
+%    trajs    array of Trajectory classes containing the trajectory information
+% 
+% See also: setParameter, matchFrames, findTrajectories, Frame, Match, Trajectory
 
 if nargin < 2
    outdir = indir;
-end
-if nargin < 3
-   print = [];
-end
-if isempty(print) 
-   print = 0;  % default print level
+   param = [];
 end
 
-if nargin < 4
-   filter = [];
+if nargin < 3
+   if isstruct(outdir)
+      param = outdir;
+      outdir = indir;
+   else
+      param = [];
+   end
 end
+
+sav = getParameter(param, {'save'}, 1);
+
+min_time  = getParameter(param, {'min_time'}, []);
+max_time  = getParameter(param, {'max_time'}, []);
+max_frames = getParameter(param, {'max_frames'}, []);
+
+fig_match  = getParameter(param, {'figure', 'match'}, 0);
+fig_traj   = getParameter(param, {'figure', 'trajectories'}, 0);
+fig_stats  = getParameter(param, {'figure', 'stats'}, 0);
 
 
 %% load data
-data = loadEmbryoData(indir);
+frames = loadEmbryoData(indir, param);
 
-
-if ~isempty(param.min_time )
-   times = [data.time];
-   data = data(find(times > param.min_time, 1,'first'): end);
+if ~isempty(min_time)
+   times = frames.time;
+   frames = frames(find(times >= min_time, 1,'first') : end);
 end
 
-if ~isempty(param.max_time )
-   times = [data.time];
-   data = data(1: find(times<param.max_time, 1,'last'));
+if ~isempty(max_time )
+   times = frames.time;
+   frames = frames(1: find(times <= max_time, 1,'last'));
 end
 
-if ~isempty(param.max_time )
-   data = data(1: param.max_steps);
+if ~isempty(max_frames)
+   frames = frames(1: min(length(frames), max_frames));
 end
 
 
-if ~isempty(filter)
-   for i=1:length(data)
-      data(i) = filter(data(i));
-   end
-end
+
 
 %% match frames
-if print > 2 % verbosity at least 3
-   [match, cost] = matchAllFrames(data, param.dist_cutof, param.creation_cost, param.deletion_cost, param.optimize);
 
-   for t =1:length(match)
-      figure(t)
+if fig_match
+   [matches, costs] = matchFrames(frames, param);
+
+   for t =1:length(matches)
+      figure
       clf
       subplot(1,2,1)
-      plotMatchedTimeFrameData(data(t), data(t+1), match(t))
+      plotMatchedObjects(matches(t))
       title('matches')
       subplot(1,2,2)
-      plotMatchedCostMatrix(match(t), cost{t})
+      plotMatchedCostMatrix(matches(t), costs{t})
       title('cost matrix')
    end
 else
-   match = matchAllFrames(data, param.dist_cutoff, param.creation_cost, param.deletion_cost, param.optimize);
+   matches = matchFrames(frames, param);
 end   
 
 
 %% find trajectories
 
-traj = matchedTrajectories(match);
+trajs = findTrajectories(matches);
 
-if print > 0
-   figure(1)
+if fig_traj
+   figure
    clf
-   plotMatchedTrajectories(data, traj)
+   plotMatchedTrajectories(frames, trajs)
 end
 
-if print > 2
-   stats = trajectoryStatistics(data, traj);
+if fig_stats
+   stats = trajs.statistics;
 
-   figure(2)
+   figure
    subplot(1,2,1)
    hist(stats.length.values)
    title(sprintf('trajectory time lengths:\nmean:%g std:%g', stats.length.mean, stats.length.std))
@@ -105,5 +123,6 @@ end
 
 %% save data
 
-saveEmbryoData(outdir, data, traj);
-
+if sav
+   saveEmbryoData(outdir, frames, trajs, param);
+end

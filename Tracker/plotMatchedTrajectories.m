@@ -1,33 +1,35 @@
-function plotMatchedTrajectories(data, traj)
+function plotMatchedTrajectories(frames, traj)
 %
-% plotMatchedTimeFrameData(data, traj)
+% plotMatchedTrajectories(frames, traj)
 %
-% plot data points and trajectories 
+% description:
+%    plot data points and trajectories from array of Frame and Trajectory classes
+%
+% input:
+%    frames   array of Frame classes
+%    traj     array of Trajectory classes
 % 
 
-
 % plot the data points
-nframes = length(data);
-dim = data(1).dim;
 
-if nframes > 0 && isequal(class(traj(1)), 'TrackingTrajectoryData')
-   traj = traj.toData();
+if ~isa(frames, 'Frame')
+   error('plotMatchedTrajectories: expects array of Frame classes')
 end
 
 
+% figure
+
+nframes = length(frames);
+dim = frames.dim;
 cols = hsv2rgb([linspace(0,1-1/nframes,nframes)' ones(nframes,2)]);
 
-xyz{nframes} = [];
-for t = 1:nframes
-   xyz{t} = data(t).toCoordinates();
-end
+xyz = frames.r;
 
 hold on
 grid on
 
-% data points
-for t = 1: nframes   
-   s = data(t).toSizes();
+for t = 1: nframes
+   s = frames(t).volume;
    s = s / max(s) .* 200;
 
    if dim == 2
@@ -37,19 +39,23 @@ for t = 1: nframes
    end
 end
 
+clear xyz
+
 % trajectories
 
-if nargin > 1   
+if nargin > 1
+   
+   if ~isa(traj, 'Trajectory')
+      error('plotMatchedTrajectories: expects array of Trajectory classes')
+   end
+   
    ntraj = length(traj);
    cols = hsv2rgb([linspace(0,1-1/ntraj,ntraj)' ones(ntraj,2)]);
    
    for i=1:ntraj
-      
-      times = traj{i}(1,:);
-      ids = traj{i}(2,:);
-      
-      xyzt = cell2mat(cellfun(@(x,i) x(:,i), xyz(times), num2cell(ids), 'UniformOutput', false));
 
+      xyzt = traj(i).r;
+      
       if dim == 2
          line(xyzt(1,:), xyzt(2,:), 'Color', cols(i,:))
       else
