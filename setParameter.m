@@ -8,11 +8,11 @@ function param = setParameter()
 
 %% loading / saving
   
-param.load.min = 2;           % skip loading a file if number of objects is smaller (2)
-param.load.change = [];       % skip a loading file if percentage of objectnumber change is larger
+param.load.min = 10;            % skip data file if number of objects (cells|nuclei) is <=load.min (2)
+param.load.change = 0.90;       % skip a loading file if fraction of objectnumber change is >=load.change
 
-param.min_time = [];          % start matching after this time
-param.max_time = [];          % stop matching above this time
+param.min_time = [];          % start matching from this time onward
+param.max_time = [];          % do not match any data > this time
 param.max_frames = [];        % stop matching after this number of frames
 
 param.filter = [];            % apply a filter to each frame ([] = none)

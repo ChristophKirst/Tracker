@@ -85,7 +85,7 @@ for i=1:length(fn)
 end
 
 if print_load
-   fprintf('loadEmbryoData: loaded %d frames from %d files in %s\n', length(frames), length(fn), dirname)
+   fprintf('loadEmbryoData: loaded %d frames from %d files in %s\n\n', length(frames), length(fn), dirname)
 end
 
 
