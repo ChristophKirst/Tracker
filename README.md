@@ -2,8 +2,8 @@ EmbryoTracker
 =============
 
 Version Jan 22 2014 
-by Christoph Kirst
-Rockefeller University
+by Christoph Kirst, 
+Rockefeller University, 
 ckirst@rockefeller.edu
 
 
@@ -30,8 +30,8 @@ For more control over various internal parameters see setParameter.m
 Example
 -------
 
-   param = setParmeter();
-   runTracker(dirin, dirout, param)
+    param = setParmeter();
+    runTracker(dirin, dirout, param)
 
 see the sections of /Test/testEmbryoTracker.m for more examples and tests.
   
