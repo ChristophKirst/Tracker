@@ -43,7 +43,7 @@ classdef Trajectory
       end
       
       function l = get.length(obj)
-         if lengths(obj) == 1
+         if length(obj) == 1
             l = length(obj.objects);
          else
             l = arrayfun(@length, obj.objects);

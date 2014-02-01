@@ -330,6 +330,10 @@ xlabel('distance')
 
 saveEmbryoData('./Test/Out', frames, trajs)
 
+%% saving Trajectory Data
+
+
+saveEmbryoTrajectoryData('./Test/Out/TrajectoryData.csv', frames, trajs)
 
 
 %% run full Tracker 
@@ -345,7 +349,7 @@ param = setParameter();
 
 param.filter =  @testFilter;
 
-runTracker('./Test/Data', './Test/Out', param)
+runTracker('./Test/Data', './Test/Out/TrajectoryData.csv', param);
 
 
 %% run full Tacker with test parameter 
@@ -355,7 +359,7 @@ param = setParameterTest();
 
 param.filter = @testFilter;
 
-[frames, matches, trajs] = runTracker('./Test/Data.all', './Test/Out', param);
+[frames, matches, trajs] = runTracker('./Test/Data.all', './Test/Out/TrajectoryData.csv', param);
 
 
 

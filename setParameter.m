@@ -17,7 +17,8 @@ param.max_frames = [];        % stop matching after this number of frames
 
 param.filter = [];            % apply a filter to each frame ([] = none)
 
-param.save = 1;               % save the results
+param.save = 2;               % save the results (0 = dont, 1 = trajectories in each file, 2 = one file with trajectory data)
+
 
 %% matching
 

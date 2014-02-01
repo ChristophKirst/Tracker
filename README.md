@@ -1,4 +1,4 @@
-EmbryoTracker
+Tracker
 =============
 
 Version Jan 22 2014 
@@ -34,7 +34,7 @@ Example
     runTracker(dirin, dirout, param)
 
 see the sections of /Test/testEmbryoTracker.m for more examples and tests.
-  
+
 
 
 Algorithm

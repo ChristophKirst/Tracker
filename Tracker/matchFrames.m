@@ -65,7 +65,7 @@ end
 for t = 1:nframes-1
   
    if print_match
-      fprintf('matchFrames: matching timeframe: %d / %d\n', t, nframes-1);
+      fprintf('matchFrames: matching step %d / %d, matching frames %d -> %d with times %g -> %g\n', t, nframes-1,t,t+1, frames(t).time, frames(t+1).time);
    end
    
    [match(t), co] = matchObjects(frames(t), frames(t+1),  param);

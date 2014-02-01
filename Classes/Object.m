@@ -4,12 +4,12 @@ classdef Object < handle
 %
 % See also: Trajectory, Picture, Frame
    properties
-      r = [0; 0];    % spatial position
-      time = 0;      % time
+      r = [0; 0];    % spatial position (row vector)
+      time = 0;      % time frame
       
       volume = [];    % area or volume ([] for none)
       intensity = []; % intensity ([] for none)
-      id = [];        % id ([] forn none)
+      id = [];        % id ([] for none)
       
       type = [];      % data that identifies the object type ([] for none)
       
@@ -101,8 +101,7 @@ classdef Object < handle
          if ~isempty(obj)
             d = size(obj(1).r, 1);
          else
-            obj
-            error('sadsad');
+            error('Object: dim not available for empty object');
          end
       end
       

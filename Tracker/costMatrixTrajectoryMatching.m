@@ -31,14 +31,12 @@ function cost = costMatrixTrajectoryMatching(data, traj, param)
 % reference:
 %             
 %
-% See also: optimalMatchingMatrix, distanceMatrix
+% See also: distanceMatrix, costMatrixObjectMatching
 
 
-%% parameter
+error('not implemented yet')
 
-
-
-
+% initialize
 
 cost_start = param.cost.start;
 cost_end   = param.cost.end;

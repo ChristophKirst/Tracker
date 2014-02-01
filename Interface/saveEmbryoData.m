@@ -18,7 +18,6 @@ function saveEmbryoData(dirname, frames, trajs, param)
 
 id_label = 'Cell ID';
 
-
 if nargin < 4
    param = [];
 end
